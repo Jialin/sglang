@@ -39,6 +39,7 @@ from sglang.srt.mem_cache.base_prefix_cache import (
     MatchResult,
 )
 from sglang.srt.mem_cache.cache_init_params import CacheInitParams
+from sglang.srt.mem_cache.tree_core import TreeCore
 from sglang.srt.mem_cache.memory_pool import HybridReqToTokenPool
 from sglang.srt.mem_cache.radix_cache import RadixKey
 from sglang.srt.mem_cache.rust_unified_cache_components import build_components
@@ -85,7 +86,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
         wrapper_cls = (
             RustBigramRadixCacheWrapper if self.is_eagle else RustPageRadixCacheWrapper
         )
-        self._rust_radix: Any = wrapper_cls(
+        self._tree: TreeCore = wrapper_cls(
             device=device_str,
             page_size=self.page_size,
             init_node_capacity=_DEFAULT_INIT_NODE_CAPACITY,
@@ -148,7 +149,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
 
     def reset(self) -> None:
         # Clears tree state only; not the allocator.
-        self._rust_radix.reset()
+        self._tree.reset()
 
     def supports_fast_match_prefix(self) -> bool:
         return True
@@ -158,7 +159,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
             return self._empty_match_result()
 
         token_ids = params.key.raw_token_ids()
-        rust_result = self._rust_radix.match_prefix(token_ids, params.key.extra_key)
+        rust_result = self._tree.match_prefix(token_ids, params.key.extra_key)
 
         # Device-only cache: host / best-match nodes collapse onto the device node.
         last_device_node = rust_result.last_device_node_idx
@@ -212,7 +213,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
         token_ids = aligned_key.token_ids
         value = value[:atom_count] if atom_count > 0 else value
 
-        rust_result = self._rust_radix.insert(
+        rust_result = self._tree.insert(
             token_ids,
             value,
             aligned_key.extra_key,
@@ -259,7 +260,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
         # FULL eviction can cross-bump freed[Swa], so release every freed bin
         # below even when that component's budget is 0.
         start_time = time.perf_counter()
-        result = self._rust_radix.evict([full_budget, swa_budget, mamba_budget])
+        result = self._tree.evict([full_budget, swa_budget, mamba_budget])
 
         for idx, comp in self.components.items():
             comp.free_evicted(result.freed[idx])
@@ -274,7 +275,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
     def inc_lock_ref(self, node: Any) -> IncLockRefResult:
         if self.disable or node is None:
             return IncLockRefResult(delta=0)
-        delta, swa_uuid_for_lock = self._rust_radix.inc_lock_ref(node)
+        delta, swa_uuid_for_lock = self._tree.inc_lock_ref(node)
         return IncLockRefResult(delta=delta, swa_uuid_for_lock=swa_uuid_for_lock)
 
     def dec_lock_ref(
@@ -286,7 +287,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
             return DecLockRefResult()
         # `swa_uuid_for_lock` stops SWA's release walk at the matching boundary.
         swa_uuid_for_lock = params.swa_uuid_for_lock if params is not None else None
-        self._rust_radix.dec_lock_ref(node, swa_uuid_for_lock)
+        self._tree.dec_lock_ref(node, swa_uuid_for_lock)
         return DecLockRefResult()
 
     def evictable_size(self) -> int:
@@ -296,7 +297,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
         return self.components[ComponentType.Full].protected_size()
 
     def total_size(self):
-        return self._rust_radix.total_size()
+        return self._tree.total_size()
 
     def full_evictable_size(self) -> int:
         return self.evictable_size()

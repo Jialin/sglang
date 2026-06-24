@@ -54,6 +54,6 @@ class RustSWAComponent(RustTreeComponent):
     def commit_insert_actions(self):
         # One batched write per insert for all staged SWA recovers/stamps.
         if self._node_indices:
-            self.cache._rust_radix.apply_swa_writes(self._node_indices, self._values)
+            self.cache._tree.apply_swa_writes(self._node_indices, self._values)
             self._node_indices = []
             self._values = []

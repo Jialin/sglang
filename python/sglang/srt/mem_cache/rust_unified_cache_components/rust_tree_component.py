@@ -48,13 +48,13 @@ class RustTreeComponent:
 
     # --- Generic size accounting, keyed by this component's type. ---
     def evictable_size(self) -> int:
-        return self.cache._rust_radix.component_evictable_size(self.component_type)
+        return self.cache._tree.component_evictable_size(self.component_type)
 
     def protected_size(self) -> int:
-        return self.cache._rust_radix.component_protected_size(self.component_type)
+        return self.cache._tree.component_protected_size(self.component_type)
 
     def total_size(self) -> int:
-        return self.cache._rust_radix.component_total_size(self.component_type)
+        return self.cache._tree.component_total_size(self.component_type)
 
     # --- Optional hooks: the orchestrator loops these over every component, so
     #     only the participating component overrides; the rest stay no-ops. ---
