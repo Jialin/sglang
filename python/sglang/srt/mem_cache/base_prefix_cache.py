@@ -22,6 +22,7 @@ from sglang.srt.observability.metrics_collector import (
     RadixCacheMetricsCollector,
     resolve_collector_class,
 )
+from sglang.srt.observability.overhead_tracker import TRACK_OVERHEAD, OverheadTracker
 
 if TYPE_CHECKING:
     from sglang.srt.managers.schedule_batch import Req
@@ -235,6 +236,60 @@ class BasePrefixCache(ABC, PrefixCacheTrait):
                 time.perf_counter() - start_time
             )
             self.metrics_collector.increment_eviction_num_tokens(num_evicted)
+
+    # ---- Opt-in cache-orchestration overhead tracker (SGLANG_TRACK_OVERHEAD) ----
+    # Wraps the public cache methods with identical seams on both backends so the
+    # per-call Python-glue cost is directly comparable. Off => no wrappers, no cost.
+
+    _overhead: Optional[OverheadTracker] = None
+    _in_cache_op: bool = False
+
+    def init_overhead_tracker(self):
+        """Called from concrete __init__; name carries the backend class."""
+        self._overhead = (
+            OverheadTracker(f"cache:{self.__class__.__name__}")
+            if TRACK_OVERHEAD
+            else None
+        )
+        self._in_cache_op = False
+
+    def _install_overhead_wrappers(self):
+        if self._overhead is None:
+            return
+        pc = time.perf_counter
+        tr = self._overhead
+        # (method_name, is_window_driver)
+        wrapped = (
+            ("match_prefix", True),
+            ("insert", False),
+            ("cache_finished_req", False),
+            ("cache_unfinished_req", False),
+            ("inc_lock_ref", False),
+            ("dec_lock_ref", False),
+            ("evict", False),
+        )
+        for name, driver in wrapped:
+            orig = getattr(self, name, None)
+            if orig is None:
+                continue
+
+            def make(orig, name, driver):
+                def w(*a, **k):
+                    # Reentrancy guard: only the OUTERMOST public call records, so
+                    # cache_finished_req -> self.insert is not double-counted.
+                    if self._in_cache_op:
+                        return orig(*a, **k)
+                    self._in_cache_op = True
+                    t = pc()
+                    try:
+                        return orig(*a, **k)
+                    finally:
+                        tr.add(name, pc() - t, driver=driver)
+                        self._in_cache_op = False
+
+                return w
+
+            setattr(self, name, make(orig, name, driver))
 
     @abstractmethod
     def reset(self):

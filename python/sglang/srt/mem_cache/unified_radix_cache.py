@@ -376,6 +376,9 @@ class UnifiedRadixCache(KVCacheEventMixin, BasePrefixCache):
 
         self.reset()
         logger.info(f"Init Unified RadixTree with components {self.tree_components}")
+        # Opt-in per-call overhead tracker (no-op unless SGLANG_TRACK_OVERHEAD).
+        self.init_overhead_tracker()
+        self._install_overhead_wrappers()
 
     def _all_reduce_attn_groups(self, tensor: torch.Tensor, op):
         reduced = False

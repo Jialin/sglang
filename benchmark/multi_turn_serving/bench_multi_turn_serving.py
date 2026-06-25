@@ -57,6 +57,7 @@ class TurnTiming:
     prompt_tokens: int  # accumulated input tokens at submission time
     output_tokens: int  # actual emitted
     duration_s: float  # full turn wall time
+    gpu_prefill_ms: float = 0.0  # per-turn GPU prefill forward time (ms)
 
 
 @dataclass
@@ -102,9 +103,10 @@ def _stream_generate(
     input_ids: list[int],
     max_new_tokens: int,
     timeout_s: float,
-) -> tuple[float, float, list[int], int, int]:
+) -> tuple[float, float, list[int], int, int, float]:
     """Send a streaming `/generate` request with raw token IDs; return
-        (ttft_s, duration_s, output_ids, prompt_tokens, completion_tokens)
+        (ttft_s, duration_s, output_ids, prompt_tokens, completion_tokens,
+         gpu_prefill_ms)
 
     `output_ids` is the final accumulated list (the server emits the
     cumulative list each chunk; we keep the last). TTFT is the wall time
@@ -130,6 +132,7 @@ def _stream_generate(
     output_ids: list[int] = []
     prompt_tokens = 0
     completion_tokens = 0
+    gpu_prefill_ms = 0.0
 
     with requests.post(
         url,
@@ -159,6 +162,8 @@ def _stream_generate(
                 prompt_tokens = int(meta["prompt_tokens"])
             if meta.get("completion_tokens") is not None:
                 completion_tokens = int(meta["completion_tokens"])
+            if meta.get("gpu_prefill_ms") is not None:
+                gpu_prefill_ms = float(meta["gpu_prefill_ms"])
 
     end = time.perf_counter()
     if first_token_time is None:
@@ -168,7 +173,14 @@ def _stream_generate(
     # Fall back to len(output_ids) if the server didn't emit
     # completion_tokens in meta_info (defensive — SGLang does).
     completion_tokens = max(completion_tokens, len(output_ids))
-    return ttft_s, duration_s, output_ids, prompt_tokens, completion_tokens
+    return (
+        ttft_s,
+        duration_s,
+        output_ids,
+        prompt_tokens,
+        completion_tokens,
+        gpu_prefill_ms,
+    )
 
 
 def run_trial(
@@ -194,13 +206,18 @@ def run_trial(
     for turn_idx in range(num_turns):
         if turn_idx > 0:
             input_ids = input_ids + _continue_token_ids(turn_idx)
-        ttft_s, duration_s, output_ids, prompt_tokens, completion_tokens = (
-            _stream_generate(
-                server_url=server_url,
-                input_ids=input_ids,
-                max_new_tokens=output_tokens_per_turn,
-                timeout_s=timeout_s,
-            )
+        (
+            ttft_s,
+            duration_s,
+            output_ids,
+            prompt_tokens,
+            completion_tokens,
+            gpu_prefill_ms,
+        ) = _stream_generate(
+            server_url=server_url,
+            input_ids=input_ids,
+            max_new_tokens=output_tokens_per_turn,
+            timeout_s=timeout_s,
         )
         post_first_tokens = max(1, completion_tokens - 1)
         ttit_s = (duration_s - ttft_s) / post_first_tokens
@@ -212,6 +229,7 @@ def run_trial(
                 prompt_tokens=prompt_tokens,
                 output_tokens=completion_tokens,
                 duration_s=duration_s,
+                gpu_prefill_ms=gpu_prefill_ms,
             )
         )
         # Append the assistant's output_ids so the next turn's prefix
@@ -384,9 +402,11 @@ def main() -> None:
         first_step = result.turns[0]
         last_step = result.turns[-1]
         print(
-            f"    turn 1: TTFT={first_step.ttft_s * 1000:.1f}ms, "
+            f"    turn 1: TTFT={first_step.ttft_s * 1000:.1f}ms "
+            f"(gpu={first_step.gpu_prefill_ms:.1f}ms), "
             f"prompt_tok={first_step.prompt_tokens}; "
-            f"turn {len(result.turns)}: TTFT={last_step.ttft_s * 1000:.1f}ms, "
+            f"turn {len(result.turns)}: TTFT={last_step.ttft_s * 1000:.1f}ms "
+            f"(gpu={last_step.gpu_prefill_ms:.1f}ms), "
             f"prompt_tok={last_step.prompt_tokens}"
         )
 
@@ -418,6 +438,7 @@ def main() -> None:
                             "prompt_tokens": t.prompt_tokens,
                             "output_tokens": t.output_tokens,
                             "duration_s": t.duration_s,
+                            "gpu_prefill_ms": t.gpu_prefill_ms,
                         }
                         for t in tr.turns
                     ],

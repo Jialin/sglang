@@ -93,11 +93,22 @@ class RustUnifiedRadixCache(BasePrefixCache):
             sliding_window_size=self.sliding_window_size,
             mamba_cache_chunk_size=self.mamba_cache_chunk_size,
         )
+        # TEMP (not for commit): env-gated per-op profiling, SGLANG_CACHE_PROF=1.
+        from sglang.srt.mem_cache.cache_prof import maybe_wrap, maybe_wrap_allocator
+
+        self._tree = maybe_wrap(self._tree)
+        # TEMP (not for commit): allocator timing, SGLANG_ALLOC_PROF=1.
+        self.token_to_kv_pool_allocator = maybe_wrap_allocator(
+            self.token_to_kv_pool_allocator
+        )
         # Shared empty tensor for fast return; must not be mutated.
         self._empty_indices = torch.empty((0,), dtype=torch.int64, device=self.device)
         # Pool-side per-component handlers; dispatch to these instead of
         # branching per component inline.
         self.components = build_components(self)
+        # Opt-in per-call overhead tracker (no-op unless SGLANG_TRACK_OVERHEAD).
+        self.init_overhead_tracker()
+        self._install_overhead_wrappers()
 
     def _reject_unsupported(self, params: CacheInitParams, server_args: Any) -> None:
         if params.eviction_policy.lower() != "lru":
@@ -367,6 +378,10 @@ class RustUnifiedRadixCache(BasePrefixCache):
                 comp.cleanup_after_caching_req(req, is_finished=True, disabled=True)
             return
 
+        # TEMP (not for commit): naive sub-step timing -> SGLANG_TRACK_OVERHEAD dump.
+        _tr = self._overhead
+        _pc = time.perf_counter
+
         token_ids = (req.origin_input_ids + req.output_ids)[:kv_committed_len]
         kv_indices = self.req_to_token_pool.req_to_token[
             req.req_pool_idx, : len(token_ids)
@@ -377,6 +392,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
             swa_evicted_seqlen=req.swa_evicted_seqlen,
         )
         # Components fill their insert value and may shorten the cached length.
+        _t0 = _pc() if _tr else 0.0
         cache_len = len(token_ids)
         for comp in self.components.values():
             cl = comp.prepare_for_caching_req(
@@ -384,19 +400,28 @@ class RustUnifiedRadixCache(BasePrefixCache):
             )
             if cl is not None:
                 cache_len = min(cache_len, cl)
+        if _tr is not None:
+            _tr.add("cfr:comp_prep", _pc() - _t0)
         if cache_len != len(token_ids):
             cache_end_idx = max(cache_len, req.cache_protected_len)
+            _t0 = _pc() if _tr else 0.0
             self.token_to_kv_pool_allocator.free(kv_indices[cache_end_idx:])
+            if _tr is not None:
+                _tr.add("cfr:free", _pc() - _t0)
             token_ids = token_ids[:cache_len]
             kv_indices = kv_indices[:cache_len]
 
+        _t0 = _pc() if _tr else 0.0
         radix_key = RadixKey(
             token_ids, req.extra_key, is_bigram=self.is_eagle
         ).page_aligned(self.page_size)
         atom_len = len(radix_key)
         insert_params.key = radix_key
         insert_params.value = kv_indices[:atom_len].to(dtype=torch.int64, copy=True)
+        if _tr is not None:
+            _tr.add("cfr:key_value", _pc() - _t0)
 
+        _t0 = _pc() if _tr else 0.0
         insert_result = None
         if is_insert:
             insert_result = self.insert(insert_params)
@@ -404,10 +429,16 @@ class RustUnifiedRadixCache(BasePrefixCache):
             self.token_to_kv_pool_allocator.free(
                 kv_indices[req.cache_protected_len : atom_len]
             )
+        if _tr is not None:
+            _tr.add("cfr:insert", _pc() - _t0)
 
         # Free everything past the aligned atom prefix.
+        _t0 = _pc() if _tr else 0.0
         self.token_to_kv_pool_allocator.free(kv_indices[atom_len:])
+        if _tr is not None:
+            _tr.add("cfr:free", _pc() - _t0)
 
+        _t0 = _pc() if _tr else 0.0
         for comp in self.components.values():
             comp.cleanup_after_caching_req(
                 req,
@@ -416,27 +447,40 @@ class RustUnifiedRadixCache(BasePrefixCache):
                 insert_result=insert_result,
                 insert_params=insert_params,
             )
+        if _tr is not None:
+            _tr.add("cfr:comp_cleanup", _pc() - _t0)
 
         # Release the prefill lock.
+        _t0 = _pc() if _tr else 0.0
         self.dec_lock_ref(
             req.last_node,
             DecLockRefParams(swa_uuid_for_lock=req.swa_uuid_for_lock),
         )
+        if _tr is not None:
+            _tr.add("cfr:lock", _pc() - _t0)
 
     def cache_unfinished_req(self, req: "Req", chunked: bool = False, **kwargs) -> None:
         if self.disable:
             return
 
+        # TEMP (not for commit): naive sub-step timing -> SGLANG_TRACK_OVERHEAD dump.
+        _tr = self._overhead
+        _pc = time.perf_counter
+
+        _t0 = _pc() if _tr else 0.0
         token_ids = req.get_fill_ids()
         kv_indices = self.req_to_token_pool.req_to_token[
             req.req_pool_idx, : len(token_ids)
         ]
+        if _tr is not None:
+            _tr.add("cuf:fill_ids", _pc() - _t0)
 
         insert_params = InsertParams(
             chunked=chunked,
             prev_prefix_len=req.cache_protected_len,
         )
         # Components fill their insert value; a None return means skip caching.
+        _t0 = _pc() if _tr else 0.0
         cache_len = len(token_ids)
         for comp in self.components.values():
             cl = comp.prepare_for_caching_req(
@@ -446,17 +490,26 @@ class RustUnifiedRadixCache(BasePrefixCache):
                 req.prefix_indices = kv_indices.to(dtype=torch.int64, copy=True)
                 return
             cache_len = min(cache_len, cl)
+        if _tr is not None:
+            _tr.add("cuf:comp_prep", _pc() - _t0)
         token_ids = token_ids[:cache_len]
 
+        _t0 = _pc() if _tr else 0.0
         radix_key = RadixKey(
             token_ids, req.extra_key, is_bigram=self.is_eagle
         ).page_aligned(self.page_size)
         atom_len = len(radix_key)
         insert_params.key = radix_key
         insert_params.value = kv_indices[:atom_len].to(dtype=torch.int64, copy=True)
+        if _tr is not None:
+            _tr.add("cuf:key_value", _pc() - _t0)
 
+        _t0 = _pc() if _tr else 0.0
         insert_result = self.insert(insert_params)
+        if _tr is not None:
+            _tr.add("cuf:insert", _pc() - _t0)
 
+        _t0 = _pc() if _tr else 0.0
         for comp in self.components.values():
             comp.cleanup_after_caching_req(
                 req,
@@ -465,10 +518,15 @@ class RustUnifiedRadixCache(BasePrefixCache):
                 insert_result=insert_result,
                 insert_params=insert_params,
             )
+        if _tr is not None:
+            _tr.add("cuf:comp_cleanup", _pc() - _t0)
 
         # Re-read the canonical tree-owned indices; insert may have de-duplicated.
         # With SWA a rematch can return fewer indices than atom_len.
+        _t0 = _pc() if _tr else 0.0
         match_result = self.match_prefix(MatchPrefixParams(key=radix_key))
+        if _tr is not None:
+            _tr.add("cuf:rematch", _pc() - _t0)
         new_indices = match_result.device_indices
         new_last_node = match_result.last_device_node
         # The `+ page_size - 1` slack tolerates a trailing partial page.
@@ -480,6 +538,7 @@ class RustUnifiedRadixCache(BasePrefixCache):
             f"{atom_len=}, {self.page_size=}"
         )
 
+        _t0 = _pc() if _tr else 0.0
         self.req_to_token_pool.write(
             (req.req_pool_idx, slice(req.cache_protected_len, len(new_indices))),
             new_indices[req.cache_protected_len :],
@@ -502,3 +561,5 @@ class RustUnifiedRadixCache(BasePrefixCache):
             req.prefix_indices = new_indices
         req.last_node = new_last_node
         req.cache_protected_len = len(new_indices)
+        if _tr is not None:
+            _tr.add("cuf:finalize", _pc() - _t0)

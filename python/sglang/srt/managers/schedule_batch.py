@@ -970,6 +970,12 @@ class Req(ReqDllmMixin):
         self.retraction_count = 0
         self.retraction_mb_id = None
 
+        # Per-request prefill/extend GPU forward time in ms (deferred CUDA-event
+        # read; 0.0 until the prefill batch result is processed). Only set for
+        # EXTEND batches; for batch>1 it is the shared per-BATCH forward time,
+        # not a per-request isolated value.
+        self.gpu_prefill_ms: float = 0.0
+
         # For observability
         self.metrics_collector = metrics_collector
         if time_stats is not None:

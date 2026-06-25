@@ -107,8 +107,11 @@ def run_eval(args):
 
     if args.eval_name == "mmlu":
         from sglang.test.simple_eval_mmlu import MMLUEval
+        from sglang.utils import download_and_cache_file
 
-        filename = "https://openaipublic.blob.core.windows.net/simple-evals/mmlu.csv"
+        filename = download_and_cache_file(
+            "https://openaipublic.blob.core.windows.net/simple-evals/mmlu.csv"
+        )
         eval_obj = MMLUEval(filename, args.num_examples, args.num_threads)
     elif args.eval_name == "math":
         from sglang.test.simple_eval_math import MathEval

@@ -225,6 +225,10 @@ from sglang.srt.model_executor.forward_batch_info import ForwardMode, PPProxyTen
 from sglang.srt.model_loader.utils import get_resolved_model_impl
 from sglang.srt.multiplex.multiplexing_mixin import SchedulerMultiplexMixin
 from sglang.srt.observability.metrics_collector import SchedulerMetricsCollector
+from sglang.srt.observability.overhead_tracker import (
+    TRACK_OVERHEAD,
+    OverheadTracker,
+)
 from sglang.srt.observability.req_time_stats import (
     set_schedule_time_batch,
     set_time_batch,
@@ -282,6 +286,9 @@ else:
 
 logger = logging.getLogger(__name__)
 
+# Bind once for the opt-in overhead tracker's hot-loop timing.
+perf_counter = time.perf_counter
+
 # Test retract decode for debugging purposes
 TEST_RETRACT = envs.SGLANG_TEST_RETRACT.get()
 TEST_RETRACT_INTERVAL = envs.SGLANG_TEST_RETRACT_INTERVAL.get()
@@ -317,6 +324,14 @@ class Scheduler(
         self.forward_ct: int = 0
         self.cur_batch: Optional[ScheduleBatch] = None
         self.init_soft_watchdog(server_args)
+        # Opt-in per-phase overhead trackers (None when off => zero-cost loop).
+        # Separate names so normal vs overlap phase buckets do not mix.
+        self._overhead = (
+            OverheadTracker("scheduler-phase") if TRACK_OVERHEAD else None
+        )
+        self._overhead_overlap = (
+            OverheadTracker("scheduler-phase-overlap") if TRACK_OVERHEAD else None
+        )
 
         # Parse args
         self.server_args = server_args
@@ -1509,20 +1524,38 @@ class Scheduler(
             if self.gracefully_exit:
                 break
 
+            # Manual gated per-phase timing; off-path is just a falsy check.
+            ov = self._overhead
+
             # Receive requests
+            t = perf_counter() if ov else 0.0
             recv_reqs = self.request_receiver.recv_requests()
+            if ov:
+                ov.add("recv", perf_counter() - t)
+            t = perf_counter() if ov else 0.0
             self.process_input_requests(recv_reqs)
+            if ov:
+                ov.add("process_input", perf_counter() - t)
             if self._engine_paused:
                 continue
 
-            # Get the next batch to run
+            # Get the next batch to run (radix READ; drives the window once/step)
+            t = perf_counter() if ov else 0.0
             batch = self.get_next_batch_to_run()
+            if ov:
+                ov.add("get_next_batch", perf_counter() - t, driver=True)
             self.cur_batch = batch
 
             # Launch the current batch
             if batch:
+                t = perf_counter() if ov else 0.0
                 result = self.run_batch(batch)
+                if ov:
+                    ov.add("run_batch_launch", perf_counter() - t)
+                t = perf_counter() if ov else 0.0
                 self.process_batch_result(batch, result)
+                if ov:
+                    ov.add("process_batch_result", perf_counter() - t)
             else:
                 # When the server is idle, do self-check and re-init some states.
                 self.on_idle()
@@ -1540,24 +1573,40 @@ class Scheduler(
         ] = deque()
 
         def pop_and_process():
-            # Process the results of the last batch
+            # Process the results of the last batch (radix WRITE; previous batch).
+            ov = self._overhead_overlap
             tmp_batch, tmp_result = self.result_queue.popleft()
+            t = perf_counter() if ov else 0.0
             self.process_batch_result(tmp_batch, tmp_result)
+            if ov:
+                ov.add("process_batch_result", perf_counter() - t)
 
         while True:
             if self.gracefully_exit:
                 break
 
+            # Manual gated per-phase timing; off-path is just a falsy check.
+            ov = self._overhead_overlap
+
             # Receive requests
+            t = perf_counter() if ov else 0.0
             recv_reqs = self.request_receiver.recv_requests()
+            if ov:
+                ov.add("recv", perf_counter() - t)
+            t = perf_counter() if ov else 0.0
             self.process_input_requests(recv_reqs)
+            if ov:
+                ov.add("process_input", perf_counter() - t)
             if self._engine_paused:
                 continue
 
             self._apply_war_barrier()
 
-            # Get the next batch to run
+            # Get the next batch to run (radix READ; drives the window once/step)
+            t = perf_counter() if ov else 0.0
             batch = self.get_next_batch_to_run()
+            if ov:
+                ov.add("get_next_batch", perf_counter() - t, driver=True)
             self.cur_batch = batch
             disable_overlap_for_batch = self.is_disable_overlap_for_batch(batch)
 
@@ -1566,9 +1615,12 @@ class Scheduler(
             if disable_overlap_for_batch:
                 pop_and_process()
 
-            # Launch the current batch
+            # Launch the current batch (forward launch; CPU-only in overlap)
             if batch:
+                t = perf_counter() if ov else 0.0
                 batch_result = self.run_batch(batch)
+                if ov:
+                    ov.add("run_batch_launch", perf_counter() - t)
                 self.result_queue.append((batch.copy(), batch_result))
             else:
                 batch_result = None
@@ -3229,9 +3281,27 @@ class Scheduler(
                         )
 
                         # FIXME: pp is not compatible with overlap
+                        # Record prefill/extend GPU forward time via enable_timing
+                        # CUDA events on the forward_stream (deferred read later in
+                        # process_batch_result_prefill). Gate on EXTEND only (exclude
+                        # MIXED / TARGET_VERIFY / SPLIT_PREFILL) and on CUDA.
+                        record_prefill_time = (
+                            batch.forward_mode == ForwardMode.EXTEND
+                            and self.device.startswith("cuda")
+                        )
+                        if record_prefill_time:
+                            _pf_start = torch.cuda.Event(enable_timing=True)
+                            _pf_start.record()
                         batch_result = self.model_worker.forward_batch_generation(
                             batch, **fwd_kwargs
                         )
+                        if record_prefill_time:
+                            # First post-forward statement so the interval is
+                            # unambiguously forward-only.
+                            _pf_end = torch.cuda.Event(enable_timing=True)
+                            _pf_end.record()
+                            batch_result.prefill_start_event = _pf_start
+                            batch_result.prefill_end_event = _pf_end
                         if batch.spec_algorithm.is_none():
                             self.future_map.publish(future_indices, batch.seq_lens + 1)
                         # Park any refs the worker wants kept alive 2 iters

@@ -282,6 +282,11 @@ class Envs:
     # Physical KV-page checks: committed<=allocated + no page alias.
     SGLANG_CHECK_KV_PAGE_INVARIANTS = EnvBool(False)
 
+    # Overhead trackers (opt-in): scheduler-phase + cache-orchestration timing.
+    # When 0 the trackers are never constructed and no perf_counter() is called.
+    SGLANG_TRACK_OVERHEAD = EnvInt(0)
+    SGLANG_TRACK_OVERHEAD_WINDOW = EnvInt(2000)  # steps/calls per windowed dump
+
     # Load snapshot backend
     SGLANG_LOAD_SNAPSHOT_USE_ZMQ = EnvBool(False)
 

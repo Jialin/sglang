@@ -450,6 +450,7 @@ class DetokenizerManager(MultiHttpWorkerDetokenizerMixin):
             token_steps=recv_obj.token_steps,
             dp_ranks=recv_obj.dp_ranks,
             time_stats=recv_obj.time_stats,
+            gpu_prefill_ms=recv_obj.gpu_prefill_ms,
         )
 
     def handle_freeze_gc_req(self, recv_req: FreezeGCReq):

@@ -1194,6 +1194,9 @@ class BatchTokenIDOutput(BaseBatchReq, SpeculativeDecodingMetricsMixin):
     audio_tokens: Optional[List[int]] = None
     video_tokens: Optional[List[int]] = None
 
+    # Per-request prefill/extend GPU forward time in ms (deferred CUDA-event read).
+    gpu_prefill_ms: Optional[List[float]] = None
+
 
 @dataclass
 class BatchStrOutput(BaseBatchReq, SpeculativeDecodingMetricsMixin):
@@ -1261,6 +1264,9 @@ class BatchStrOutput(BaseBatchReq, SpeculativeDecodingMetricsMixin):
     image_tokens: Optional[List[int]] = None
     audio_tokens: Optional[List[int]] = None
     video_tokens: Optional[List[int]] = None
+
+    # Per-request prefill/extend GPU forward time in ms (deferred CUDA-event read).
+    gpu_prefill_ms: Optional[List[float]] = None
 
 
 @dataclass

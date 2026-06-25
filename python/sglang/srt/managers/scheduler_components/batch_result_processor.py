@@ -192,6 +192,20 @@ class SchedulerBatchResultProcessor:
                 result.indexer_topk_output.finalize()
                 result.indexer_topk_output = None
 
+            # Deferred, non-blocking read of the per-batch prefill GPU forward
+            # time. copy_done.synchronize() above already guarantees the forward
+            # (and thus prefill_end_event) is complete, so query() is True and
+            # elapsed_time() adds no new host sync. The query() guard keeps it
+            # safe (no implicit sync) when events are absent (non-overlap path).
+            gpu_prefill_ms = None
+            if (
+                result.prefill_end_event is not None
+                and result.prefill_end_event.query()
+            ):
+                gpu_prefill_ms = result.prefill_start_event.elapsed_time(
+                    result.prefill_end_event
+                )
+
             (
                 logits_output,
                 next_token_ids,
@@ -226,6 +240,9 @@ class SchedulerBatchResultProcessor:
 
                 if req.inflight_middle_chunks <= 0:
                     req.time_stats.set_prefill_finished_time()
+
+                    if gpu_prefill_ms is not None:
+                        req.gpu_prefill_ms = gpu_prefill_ms
 
                     # req output_ids are set here
                     req.output_ids.append(next_token_id)

@@ -1918,6 +1918,15 @@ class TokenizerManager(TokenizerControlMixin, TokenizerManagerScoreMixin):
                 if video_tokens_list and video_tokens_list[i]:
                     meta_info["video_tokens"] = video_tokens_list[i]
 
+                # Per-request prefill/extend GPU forward time (ms). getattr-guarded
+                # so the skip_tokenizer_init path / mixed-version IPC stay robust.
+                gpu_prefill_ms_list = getattr(recv_obj, "gpu_prefill_ms", None)
+                if (
+                    gpu_prefill_ms_list is not None
+                    and gpu_prefill_ms_list[i] is not None
+                ):
+                    meta_info["gpu_prefill_ms"] = gpu_prefill_ms_list[i]
+
             if getattr(recv_obj, "output_hidden_states", None):
                 hidden_states = recv_obj.output_hidden_states[i]
                 if hidden_states is not None:

@@ -72,6 +72,14 @@ class GenerationBatchResult:
     fpm_start_event: Optional[torch.cuda.Event] = None
     fpm_end_event: Optional[torch.cuda.Event] = None
 
+    # Per-batch prefill/extend GPU timing (deferred-read, no sync on hot path).
+    # Recorded on the forward_stream around the model forward; read later via
+    # query()+elapsed_time in process_batch_result_prefill. Carried across the
+    # one-step overlap gap on this object, like copy_done (the proven cross-step
+    # event carrier).
+    prefill_start_event: Optional[torch.cuda.Event] = None
+    prefill_end_event: Optional[torch.cuda.Event] = None
+
     def copy_to_cpu(self, return_logprob: bool, return_hidden_states: bool = True):
         """Copy tensors to CPU in overlap scheduling.
         Only the tensors which are needed for processing results are copied,
