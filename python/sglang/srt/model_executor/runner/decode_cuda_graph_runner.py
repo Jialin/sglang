@@ -80,6 +80,7 @@ from sglang.srt.model_executor.runner_backend.utils import resolve_decode_backen
 from sglang.srt.model_executor.runner_backend_utils import (
     CUDA_GRAPH_CAPTURE_FAILED_MSG,
 )
+from sglang.srt.model_executor.runner_utils import WarReadDonePolicy
 from sglang.srt.model_executor.runner_utils.buffers import (
     DecodeInputBuffers,
 )
@@ -188,6 +189,40 @@ class DecodeCudaGraphRunner(BaseCudaGraphRunner):
     attention backend, two-batch-overlap plugin, DeepEP adapter, and the
     pluggable self.backend that handles the actual capture/replay.
     """
+
+    # Tracks whether captured graphs record the persistent read-done event.
+    _war_read_done_node_planted: bool = False
+
+    def _plant_war_read_done_node(self):
+        """Record the persistent read-done event in each captured graph."""
+        if (
+            self.model_runner.war_read_done_event is not None
+            and torch.cuda.is_current_stream_capturing()
+        ):
+            self.model_runner.war_read_done_event.record()
+            self._war_read_done_node_planted = True
+
+    def _war_read_done_policy(self, attn_backend, forward_mode) -> WarReadDonePolicy:
+        """Select where this replay records its WAR read-done event."""
+        if (
+            forward_mode.is_target_verify()
+            and attn_backend.use_captured_forward_metadata_for_breakable_cuda_graph
+        ):
+            return WarReadDonePolicy.POST_REPLAY
+        if self._war_read_done_node_planted:
+            return WarReadDonePolicy.IN_GRAPH
+        return WarReadDonePolicy.PRE_REPLAY
+
+    def _publish_war_read_done(self, in_graph: bool):
+        """Publish the read-done event the scheduler's WAR barrier waits on."""
+        if in_graph:
+            self.model_runner.war_fastpath_read_done_event = (
+                self.model_runner.war_read_done_event
+            )
+        else:
+            read_done = self.device_module.Event()
+            read_done.record()
+            self.model_runner.war_fastpath_read_done_event = read_done
 
     def __init__(
         self,
@@ -948,6 +983,7 @@ class DecodeCudaGraphRunner(BaseCudaGraphRunner):
                 # run eagerly in `init_forward_metadata_out_graph` (replay-prep), so
                 # the captured graph reads already-physical locs. Base no-op for triton.
                 attn_backend.init_forward_metadata_in_graph(forward_batch)
+                self._plant_war_read_done_node()
 
                 # No invalidate_loc_cache() here: the unified pool translates its
                 # locs in `init_forward_metadata_out_graph`, so no cache to invalidate.
@@ -1223,13 +1259,10 @@ class DecodeCudaGraphRunner(BaseCudaGraphRunner):
             forward_batch.forward_mode.is_target_verify()
             and self.model_runner.spec_algorithm.is_dflash_family()
         )
-        # Exception: breakable-graph verify replays (captured forward metadata)
-        # re-read req_to_token *during* replay, so the pre-replay snapshot is
-        # too early -- record the event after replay instead.
-        read_done_post_replay = (
-            publish_read_done
-            and forward_batch.forward_mode.is_target_verify()
-            and self.attn_backend.use_captured_forward_metadata_for_breakable_cuda_graph
+        war_policy = (
+            self._war_read_done_policy(self.attn_backend, forward_batch.forward_mode)
+            if publish_read_done
+            else None
         )
         with timer_ctx, self.backend.replay_session():
             self.load_batch(forward_batch, pp_proxy_tensors)
@@ -1247,15 +1280,13 @@ class DecodeCudaGraphRunner(BaseCudaGraphRunner):
                         else ""
                     ),
                 )
-            if publish_read_done and not read_done_post_replay:
-                read_done = self.device_module.Event()
-                read_done.record()
-                self.model_runner.war_fastpath_read_done_event = read_done
+            if war_policy is WarReadDonePolicy.PRE_REPLAY:
+                self._publish_war_read_done(in_graph=False)
             output = self.backend.replay(self._replay_graph_key, forward_batch)
-            if read_done_post_replay:
-                read_done = self.device_module.Event()
-                read_done.record()
-                self.model_runner.war_fastpath_read_done_event = read_done
+            if war_policy is WarReadDonePolicy.POST_REPLAY:
+                self._publish_war_read_done(in_graph=False)
+            elif war_policy is WarReadDonePolicy.IN_GRAPH:
+                self._publish_war_read_done(in_graph=True)
 
         if isinstance(output, LogitsProcessorOutput):
             if self.is_dllm:

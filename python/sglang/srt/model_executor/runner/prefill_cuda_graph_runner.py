@@ -94,6 +94,7 @@ from sglang.srt.model_executor.runner_backend_utils import (
 from sglang.srt.model_executor.runner_backend_utils.breakable_cuda_graph.context import (
     BCG_FAILURE_HINT,
 )
+from sglang.srt.model_executor.runner_utils import maybe_publish_prefill_war_read_done
 from sglang.srt.model_executor.runner_backend_utils.tc_piecewise_cuda_graph import (
     TCPCG_FAILURE_HINT,
     set_tc_piecewise_forward_context,
@@ -1601,6 +1602,10 @@ class PrefillCudaGraphRunner(BaseCudaGraphRunner):
     ) -> Union[LogitsProcessorOutput, PPProxyTensors, EmbeddingPoolerOutput]:
         with self.backend.replay_session():
             static_forward_batch = self.load_batch(forward_batch, **kwargs)
+            # Replay-prep inside load_batch finished the scheduler-shared reads.
+            maybe_publish_prefill_war_read_done(
+                self.model_runner, forward_batch, self.device_module
+            )
             static_num_tokens = len(static_forward_batch.input_ids)
             raw_num_tokens = self.raw_num_tokens
             shape_key = self._shape_key(static_num_tokens, forward_batch)
