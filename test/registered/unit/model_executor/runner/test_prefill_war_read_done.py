@@ -43,9 +43,10 @@ def test_publishes_recorded_event_when_enabled():
     assert isinstance(published, _Event) and published.recorded
 
 
-def test_disabled_by_default():
+def test_disabled_when_flag_is_false():
     runner = _model_runner()
-    maybe_publish_prefill_war_read_done(runner, _batch(), _DEVICE_MODULE)
+    with envs.SGLANG_ENABLE_PREFILL_WAR_READ_DONE.override(False):
+        maybe_publish_prefill_war_read_done(runner, _batch(), _DEVICE_MODULE)
     assert runner.war_fastpath_read_done_event is None
 
 
