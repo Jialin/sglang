@@ -26,6 +26,11 @@ from sglang.srt.mem_cache.memory_pool import ReqToTokenPool
 from sglang.srt.mem_cache.multi_ended_allocator import (
     UnifiedMambaSWATokenToKVPoolAllocator,
 )
+from sglang.srt.observability.scheduler_stage_metrics import (
+    SCHEDULER_STAGE_SANITY_CHECK_CACHE,
+    SchedulerStageMetricsRecorder,
+    scheduler_stage_method,
+)
 from sglang.srt.runtime_context import get_parallel
 from sglang.srt.utils.common import (
     ceil_align,
@@ -58,6 +63,7 @@ class SchedulerInvariantChecker:
     pool_stats_observer: SchedulerPoolStatsObserver
     get_last_batch: Callable
     get_running_batch: Callable
+    scheduler_stage_metrics: SchedulerStageMetricsRecorder
     count_req_pool_leak_warnings: int = 0
     count_memory_leak_warnings: int = 0
     recent_busy_msgs: Deque[str] = field(
@@ -285,6 +291,7 @@ class SchedulerInvariantChecker:
 
         return full_uncached, swa_uncached
 
+    @scheduler_stage_method(SCHEDULER_STAGE_SANITY_CHECK_CACHE)
     def self_check_during_busy(self):
         if self.get_last_batch() is None:
             return
