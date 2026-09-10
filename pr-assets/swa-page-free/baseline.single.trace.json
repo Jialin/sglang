@@ -1,0 +1,799 @@
+{
+  "displayTimeUnit": "ms",
+  "traceEvents": [
+    {
+      "ph": "M",
+      "name": "process_name",
+      "pid": 1,
+      "tid": 0,
+      "args": {
+        "name": "CPU enqueue"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "thread_name",
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "name": "CPU enqueue"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_sort_index",
+      "pid": 1,
+      "tid": 0,
+      "args": {
+        "sort_index": 1
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_name",
+      "pid": 2,
+      "tid": 0,
+      "args": {
+        "name": "GPU kernels"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "thread_name",
+      "pid": 2,
+      "tid": 1,
+      "args": {
+        "name": "GPU kernels"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_sort_index",
+      "pid": 2,
+      "tid": 0,
+      "args": {
+        "sort_index": 2
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "baseline.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 0.0,
+      "dur": 292.034,
+      "args": {
+        "External id": 539,
+        "Record function id": 0,
+        "Ev Idx": 26
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::index",
+      "pid": 1,
+      "tid": 1,
+      "ts": 15.103515625,
+      "dur": 38.176,
+      "args": {
+        "External id": 540,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 27
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::as_strided",
+      "pid": 1,
+      "tid": 1,
+      "ts": 18.3037109375,
+      "dur": 0.832,
+      "args": {
+        "External id": 541,
+        "Record function id": 0,
+        "Ev Idx": 28
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::reshape",
+      "pid": 1,
+      "tid": 1,
+      "ts": 20.51171875,
+      "dur": 2.08,
+      "args": {
+        "External id": 542,
+        "Record function id": 0,
+        "Ev Idx": 29
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::view",
+      "pid": 1,
+      "tid": 1,
+      "ts": 21.4404296875,
+      "dur": 0.864,
+      "args": {
+        "External id": 543,
+        "Record function id": 0,
+        "Ev Idx": 30
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::gt",
+      "pid": 1,
+      "tid": 1,
+      "ts": 61.248046875,
+      "dur": 19.616,
+      "args": {
+        "External id": 544,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 31
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::floor_divide",
+      "pid": 1,
+      "tid": 1,
+      "ts": 89.599609375,
+      "dur": 24.385,
+      "args": {
+        "External id": 545,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 32
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 94.5927734375,
+      "dur": 6.752,
+      "args": {
+        "External id": 546,
+        "Record function id": 0,
+        "Ev Idx": 33
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::floor_divide",
+      "pid": 1,
+      "tid": 1,
+      "ts": 120.9931640625,
+      "dur": 18.048,
+      "args": {
+        "External id": 547,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 34
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 124.1611328125,
+      "dur": 4.64,
+      "args": {
+        "External id": 548,
+        "Record function id": 0,
+        "Ev Idx": 35
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::mul",
+      "pid": 1,
+      "tid": 1,
+      "ts": 144.0654296875,
+      "dur": 15.936,
+      "args": {
+        "External id": 549,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 36
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::arange",
+      "pid": 1,
+      "tid": 1,
+      "ts": 167.8408203125,
+      "dur": 21.952,
+      "args": {
+        "External id": 550,
+        "Record function id": 0,
+        "Ev Idx": 37
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 169.47265625,
+      "dur": 3.232,
+      "args": {
+        "External id": 551,
+        "Record function id": 0,
+        "Ev Idx": 38
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::arange",
+      "pid": 1,
+      "tid": 1,
+      "ts": 173.8251953125,
+      "dur": 15.488,
+      "args": {
+        "External id": 552,
+        "Record function id": 0,
+        "Ev Idx": 39
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::resize_",
+      "pid": 1,
+      "tid": 1,
+      "ts": 176.1611328125,
+      "dur": 3.552,
+      "args": {
+        "External id": 553,
+        "Record function id": 0,
+        "Ev Idx": 40
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::unsqueeze",
+      "pid": 1,
+      "tid": 1,
+      "ts": 196.2890625,
+      "dur": 4.448,
+      "args": {
+        "External id": 554,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 41
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::as_strided",
+      "pid": 1,
+      "tid": 1,
+      "ts": 198.4970703125,
+      "dur": 0.896,
+      "args": {
+        "External id": 555,
+        "Record function id": 0,
+        "Ev Idx": 42
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::unsqueeze",
+      "pid": 1,
+      "tid": 1,
+      "ts": 205.4091796875,
+      "dur": 2.176,
+      "args": {
+        "External id": 556,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 43
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::as_strided",
+      "pid": 1,
+      "tid": 1,
+      "ts": 206.4013671875,
+      "dur": 0.48,
+      "args": {
+        "External id": 557,
+        "Record function id": 0,
+        "Ev Idx": 44
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::add",
+      "pid": 1,
+      "tid": 1,
+      "ts": 211.9365234375,
+      "dur": 21.345,
+      "args": {
+        "External id": 558,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 45
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::reshape",
+      "pid": 1,
+      "tid": 1,
+      "ts": 238.43359375,
+      "dur": 3.296,
+      "args": {
+        "External id": 559,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 46
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::view",
+      "pid": 1,
+      "tid": 1,
+      "ts": 239.2021484375,
+      "dur": 2.272,
+      "args": {
+        "External id": 560,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 47
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::index_fill_",
+      "pid": 1,
+      "tid": 1,
+      "ts": 245.0576171875,
+      "dur": 19.072,
+      "args": {
+        "External id": 561,
+        "Record function id": 0,
+        "Sequence number": 0,
+        "Fwd thread id": 0,
+        "Ev Idx": 48
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::as_strided",
+      "pid": 1,
+      "tid": 1,
+      "ts": 249.0576171875,
+      "dur": 0.512,
+      "args": {
+        "External id": 562,
+        "Record function id": 0,
+        "Ev Idx": 49
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::as_strided",
+      "pid": 1,
+      "tid": 1,
+      "ts": 250.3056640625,
+      "dur": 0.512,
+      "args": {
+        "External id": 563,
+        "Record function id": 0,
+        "Ev Idx": 50
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "void at::native::index_elementwise_kernel<128, 4, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<8> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char const*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<8> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char const*, long)#1} const&, bool)::{lambda(int)#1}>(long, at::native::gpu_index_kernel<at::native::index_kernel_impl<at::native::OpaqueType<8> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char const*, long)#1}>(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>, at::native::index_kernel_impl<at::native::OpaqueType<8> >(at::TensorIteratorBase&, c10::ArrayRef<long>, c10::ArrayRef<long>)::{lambda(char*, char const*, long)#1} const&, bool)::{lambda(int)#1})",
+      "pid": 2,
+      "tid": 1,
+      "ts": 53.61328125,
+      "dur": 2.112,
+      "args": {
+        "External id": 540,
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 993,
+        "registers per thread": 42,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_runtime",
+      "name": "cudaLaunchKernel",
+      "pid": 1,
+      "tid": 1,
+      "ts": 36.51171875,
+      "dur": 14.816,
+      "args": {
+        "External id": 540,
+        "cbid": 211,
+        "correlation": 993
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "void at::native::vectorized_elementwise_kernel<4, at::native::compare_scalar_kernel<long>(at::TensorIteratorBase&, at::native::(anonymous namespace)::OpType, long)::{lambda(long)#1}, std::array<char*, 2ul> >(int, at::native::compare_scalar_kernel<long>(at::TensorIteratorBase&, at::native::(anonymous namespace)::OpType, long)::{lambda(long)#1}, std::array<char*, 2ul>)",
+      "pid": 2,
+      "tid": 1,
+      "ts": 82.3193359375,
+      "dur": 1.152,
+      "args": {
+        "External id": 544,
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 1006,
+        "registers per thread": 32,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_runtime",
+      "name": "cudaLaunchKernel",
+      "pid": 1,
+      "tid": 1,
+      "ts": 71.8720703125,
+      "dur": 7.584,
+      "args": {
+        "External id": 544,
+        "cbid": 211,
+        "correlation": 1006
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "void at::native::vectorized_elementwise_kernel<2, at::native::BUnaryFunctor<long, long, long, at::native::binary_internal::div_floor_kernel_cuda(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(long, long)#1}>, std::array<char*, 2ul> >(int, at::native::BUnaryFunctor<long, long, long, at::native::binary_internal::div_floor_kernel_cuda(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(long, long)#1}>, std::array<char*, 2ul>)",
+      "pid": 2,
+      "tid": 1,
+      "ts": 115.056640625,
+      "dur": 1.664,
+      "args": {
+        "External id": 545,
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 1020,
+        "registers per thread": 36,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_runtime",
+      "name": "cudaLaunchKernel",
+      "pid": 1,
+      "tid": 1,
+      "ts": 104.865234375,
+      "dur": 7.104,
+      "args": {
+        "External id": 545,
+        "cbid": 211,
+        "correlation": 1020
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "void at::native::vectorized_elementwise_kernel<2, at::native::BUnaryFunctor<long, long, long, at::native::binary_internal::div_floor_kernel_cuda(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(long, long)#1}>, std::array<char*, 2ul> >(int, at::native::BUnaryFunctor<long, long, long, at::native::binary_internal::div_floor_kernel_cuda(at::TensorIteratorBase&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(long, long)#1}>, std::array<char*, 2ul>)",
+      "pid": 2,
+      "tid": 1,
+      "ts": 140.466796875,
+      "dur": 1.568,
+      "args": {
+        "External id": 547,
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 1034,
+        "registers per thread": 36,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_runtime",
+      "name": "cudaLaunchKernel",
+      "pid": 1,
+      "tid": 1,
+      "ts": 131.4892578125,
+      "dur": 5.888,
+      "args": {
+        "External id": 547,
+        "cbid": 211,
+        "correlation": 1034
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "void at::native::vectorized_elementwise_kernel<2, at::native::AUnaryFunctor<long, long, long, at::native::binary_internal::MulFunctor<long> >, std::array<char*, 2ul> >(int, at::native::AUnaryFunctor<long, long, long, at::native::binary_internal::MulFunctor<long> >, std::array<char*, 2ul>)",
+      "pid": 2,
+      "tid": 1,
+      "ts": 161.58984375,
+      "dur": 1.504,
+      "args": {
+        "External id": 549,
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 1045,
+        "registers per thread": 40,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_runtime",
+      "name": "cudaLaunchKernel",
+      "pid": 1,
+      "tid": 1,
+      "ts": 152.865234375,
+      "dur": 5.536,
+      "args": {
+        "External id": 549,
+        "cbid": 211,
+        "correlation": 1045
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "void (anonymous namespace)::elementwise_kernel_with_index<int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(long)#1}>(int, at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(long)#1}, function_traits<at::native::arange_cuda_out(c10::Scalar const&, c10::Scalar const&, c10::Scalar const&, at::Tensor&)::{lambda()#1}::operator()() const::{lambda()#4}::operator()() const::{lambda(long)#1}>::result_type*)",
+      "pid": 2,
+      "tid": 1,
+      "ts": 191.4482421875,
+      "dur": 1.376,
+      "args": {
+        "External id": 552,
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 1063,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.013158,
+        "warps per SM": 0.026316,
+        "grid": [
+          2,
+          1,
+          1
+        ],
+        "block": [
+          64,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_runtime",
+      "name": "cudaLaunchKernel",
+      "pid": 1,
+      "tid": 1,
+      "ts": 181.7607421875,
+      "dur": 6.272,
+      "args": {
+        "External id": 552,
+        "cbid": 211,
+        "correlation": 1063
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "void at::native::elementwise_kernel<128, 2, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<long> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<long> const&)::{lambda(int)#1}>(int, at::native::gpu_kernel_impl_nocast<at::native::CUDAFunctor_add<long> >(at::TensorIteratorBase&, at::native::CUDAFunctor_add<long> const&)::{lambda(int)#1})",
+      "pid": 2,
+      "tid": 1,
+      "ts": 234.5234375,
+      "dur": 1.568,
+      "args": {
+        "External id": 558,
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 1080,
+        "registers per thread": 20,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_runtime",
+      "name": "cudaLaunchKernel",
+      "pid": 1,
+      "tid": 1,
+      "ts": 223.5205078125,
+      "dur": 8.353,
+      "args": {
+        "External id": 558,
+        "cbid": 211,
+        "correlation": 1080
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "void at::native::index_elementwise_kernel<128, 4, at::native::index_fill_kernel_impl<at::native::OpaqueType<8> >(at::TensorIterator&, long, long, long, at::native::OpaqueType<8>)::{lambda(int)#1}>(long, at::native::index_fill_kernel_impl<at::native::OpaqueType<8> >(at::TensorIterator&, long, long, long, at::native::OpaqueType<8>)::{lambda(int)#1})",
+      "pid": 2,
+      "tid": 1,
+      "ts": 265.4365234375,
+      "dur": 1.536,
+      "args": {
+        "External id": 561,
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 1087,
+        "registers per thread": 32,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_runtime",
+      "name": "cudaLaunchKernel",
+      "pid": 1,
+      "tid": 1,
+      "ts": 254.43359375,
+      "dur": 7.296,
+      "args": {
+        "External id": 561,
+        "cbid": 211,
+        "correlation": 1087
+      }
+    }
+  ]
+}

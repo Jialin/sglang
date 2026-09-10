@@ -1,0 +1,145 @@
+{
+  "displayTimeUnit": "ms",
+  "traceEvents": [
+    {
+      "ph": "M",
+      "name": "process_name",
+      "pid": 1,
+      "tid": 0,
+      "args": {
+        "name": "CPU enqueue"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "thread_name",
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "name": "CPU enqueue"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_sort_index",
+      "pid": 1,
+      "tid": 0,
+      "args": {
+        "sort_index": 1
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_name",
+      "pid": 2,
+      "tid": 0,
+      "args": {
+        "name": "GPU kernels"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "thread_name",
+      "pid": 2,
+      "tid": 1,
+      "args": {
+        "name": "GPU kernels"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_sort_index",
+      "pid": 2,
+      "tid": 0,
+      "args": {
+        "sort_index": 2
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 0.0,
+      "dur": 89.985,
+      "args": {
+        "External id": 1541,
+        "Record function id": 0,
+        "Ev Idx": 4
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 15.0078125,
+      "dur": 12.544,
+      "args": {
+        "External id": 1542,
+        "Record function id": 0,
+        "Ev Idx": 5
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 31.873046875,
+      "dur": 6.656,
+      "args": {
+        "External id": 1543,
+        "Record function id": 0,
+        "Ev Idx": 6
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 82.541015625,
+      "dur": 0.96,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3710,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 68.8330078125,
+      "dur": 10.592,
+      "args": {
+        "cbid": 652,
+        "correlation": 3710
+      }
+    }
+  ]
+}

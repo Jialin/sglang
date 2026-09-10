@@ -1,0 +1,747 @@
+{
+  "displayTimeUnit": "ms",
+  "traceEvents": [
+    {
+      "ph": "M",
+      "name": "process_name",
+      "pid": 1,
+      "tid": 0,
+      "args": {
+        "name": "CPU enqueue"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "thread_name",
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "name": "CPU enqueue"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_sort_index",
+      "pid": 1,
+      "tid": 0,
+      "args": {
+        "sort_index": 1
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_name",
+      "pid": 2,
+      "tid": 0,
+      "args": {
+        "name": "GPU kernels"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "thread_name",
+      "pid": 2,
+      "tid": 1,
+      "args": {
+        "name": "GPU kernels"
+      }
+    },
+    {
+      "ph": "M",
+      "name": "process_sort_index",
+      "pid": 2,
+      "tid": 0,
+      "args": {
+        "sort_index": 2
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 0.0,
+      "dur": 175.713,
+      "args": {
+        "External id": 1538,
+        "Record function id": 0,
+        "Ev Idx": 1
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 39.7763671875,
+      "dur": 17.536,
+      "args": {
+        "External id": 1539,
+        "Record function id": 0,
+        "Ev Idx": 2
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 62.560546875,
+      "dur": 4.928,
+      "args": {
+        "External id": 1540,
+        "Record function id": 0,
+        "Ev Idx": 3
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 195.296875,
+      "dur": 89.985,
+      "args": {
+        "External id": 1541,
+        "Record function id": 0,
+        "Ev Idx": 4
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 210.3046875,
+      "dur": 12.544,
+      "args": {
+        "External id": 1542,
+        "Record function id": 0,
+        "Ev Idx": 5
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 227.169921875,
+      "dur": 6.656,
+      "args": {
+        "External id": 1543,
+        "Record function id": 0,
+        "Ev Idx": 6
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 295.6181640625,
+      "dur": 68.353,
+      "args": {
+        "External id": 1544,
+        "Record function id": 0,
+        "Ev Idx": 7
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 305.1865234375,
+      "dur": 10.144,
+      "args": {
+        "External id": 1545,
+        "Record function id": 0,
+        "Ev Idx": 8
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 318.2421875,
+      "dur": 4.416,
+      "args": {
+        "External id": 1546,
+        "Record function id": 0,
+        "Ev Idx": 9
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 373.7314453125,
+      "dur": 76.736,
+      "args": {
+        "External id": 1547,
+        "Record function id": 0,
+        "Ev Idx": 10
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 382.275390625,
+      "dur": 7.968,
+      "args": {
+        "External id": 1548,
+        "Record function id": 0,
+        "Ev Idx": 11
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 394.466796875,
+      "dur": 5.568,
+      "args": {
+        "External id": 1549,
+        "Record function id": 0,
+        "Ev Idx": 12
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 460.451171875,
+      "dur": 74.241,
+      "args": {
+        "External id": 1550,
+        "Record function id": 0,
+        "Ev Idx": 13
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 469.4755859375,
+      "dur": 8.16,
+      "args": {
+        "External id": 1551,
+        "Record function id": 0,
+        "Ev Idx": 14
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 480.4833984375,
+      "dur": 5.408,
+      "args": {
+        "External id": 1552,
+        "Record function id": 0,
+        "Ev Idx": 15
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 543.9404296875,
+      "dur": 79.36,
+      "args": {
+        "External id": 1553,
+        "Record function id": 0,
+        "Ev Idx": 16
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 552.580078125,
+      "dur": 7.936,
+      "args": {
+        "External id": 1554,
+        "Record function id": 0,
+        "Ev Idx": 17
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 563.396484375,
+      "dur": 9.792,
+      "args": {
+        "External id": 1555,
+        "Record function id": 0,
+        "Ev Idx": 18
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 632.869140625,
+      "dur": 78.112,
+      "args": {
+        "External id": 1556,
+        "Record function id": 0,
+        "Ev Idx": 19
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 643.4609375,
+      "dur": 10.016,
+      "args": {
+        "External id": 1557,
+        "Record function id": 0,
+        "Ev Idx": 20
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 656.869140625,
+      "dur": 5.504,
+      "args": {
+        "External id": 1558,
+        "Record function id": 0,
+        "Ev Idx": 21
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "user_annotation",
+      "name": "fused.swa_metadata",
+      "pid": 1,
+      "tid": 1,
+      "ts": 720.0048828125,
+      "dur": 69.153,
+      "args": {
+        "External id": 1559,
+        "Record function id": 0,
+        "Ev Idx": 22
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 728.5810546875,
+      "dur": 9.12,
+      "args": {
+        "External id": 1560,
+        "Record function id": 0,
+        "Ev Idx": 23
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cpu_op",
+      "name": "aten::empty",
+      "pid": 1,
+      "tid": 1,
+      "ts": 741.7333984375,
+      "dur": 4.928,
+      "args": {
+        "External id": 1561,
+        "Record function id": 0,
+        "Ev Idx": 24
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 145.33203125,
+      "dur": 0.992,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3688,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 127.296875,
+      "dur": 15.936,
+      "args": {
+        "cbid": 652,
+        "correlation": 3688
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 277.837890625,
+      "dur": 0.96,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3710,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 264.1298828125,
+      "dur": 10.592,
+      "args": {
+        "cbid": 652,
+        "correlation": 3710
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 357.70703125,
+      "dur": 1.056,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3732,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 345.890625,
+      "dur": 9.184,
+      "args": {
+        "cbid": 652,
+        "correlation": 3732
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 442.1201171875,
+      "dur": 1.375,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3754,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 429.1552734375,
+      "dur": 10.208,
+      "args": {
+        "cbid": 652,
+        "correlation": 3754
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 526.5634765625,
+      "dur": 1.376,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3776,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 514.0517578125,
+      "dur": 9.92,
+      "args": {
+        "cbid": 652,
+        "correlation": 3776
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 615.3603515625,
+      "dur": 1.376,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3798,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 602.4677734375,
+      "dur": 10.112,
+      "args": {
+        "cbid": 652,
+        "correlation": 3798
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 703.6435546875,
+      "dur": 1.376,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3820,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 690.373046875,
+      "dur": 10.368,
+      "args": {
+        "cbid": 652,
+        "correlation": 3820
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "kernel",
+      "name": "get_and_clear_swa_pages_kernel",
+      "pid": 2,
+      "tid": 1,
+      "ts": 783.576171875,
+      "dur": 1.152,
+      "args": {
+        "queued": 0,
+        "device": 0,
+        "context": 1,
+        "stream": 7,
+        "correlation": 3842,
+        "registers per thread": 16,
+        "shared memory": 0,
+        "blocks per SM": 0.006579,
+        "warps per SM": 0.026316,
+        "grid": [
+          1,
+          1,
+          1
+        ],
+        "block": [
+          128,
+          1,
+          1
+        ],
+        "est. achieved occupancy %": 0
+      }
+    },
+    {
+      "ph": "X",
+      "cat": "cuda_driver",
+      "name": "cuLaunchKernelEx",
+      "pid": 1,
+      "tid": 1,
+      "ts": 770.91796875,
+      "dur": 9.664,
+      "args": {
+        "cbid": 652,
+        "correlation": 3842
+      }
+    }
+  ]
+}
