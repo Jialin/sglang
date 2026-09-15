@@ -520,6 +520,10 @@ class EAGLEDraftExtendCudaGraphRunner(DecodeCudaGraphRunner):
         else:
             bs = self._pad_to_bucket(raw_bs, self.capture_bs)
 
+        from sglang.srt.speculative import eagle_diagnostic
+
+        eagle_diagnostic.selected_logits(self, forward_batch, select_index, bs)
+
         if bs * self.captured_req_width != num_tokens:
             buffers.seq_lens.fill_(self.seq_len_fill_value)
             buffers.out_cache_loc.zero_()

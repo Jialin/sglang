@@ -1311,6 +1311,9 @@ class EAGLEWorkerV2(BaseSpecWorker):
                 )
                 return batch_output
         else:
+            from sglang.srt.speculative import eagle_diagnostic
+
+            eagle_diagnostic.sync("draft.begin")
             self.activate_step_by_batch(batch.seq_lens.shape[0])
 
             if batch.spec_info is None:
@@ -1345,8 +1348,10 @@ class EAGLEWorkerV2(BaseSpecWorker):
                 ):
                     verify_input: EagleVerifyInput = self.draft_worker.draft(batch)
             assert verify_input.is_verify_input()
+            eagle_diagnostic.sync("draft.complete")
             batch.spec_info = verify_input
             batch_output = self.verify(batch, grammar_barrier=grammar_barrier)
+            eagle_diagnostic.sync("verify.complete")
             # Publish before draft_extend so the fence is at verify-end.
             if on_publish is not None:
                 on_publish(batch_output.new_seq_lens)
@@ -1365,6 +1370,7 @@ class EAGLEWorkerV2(BaseSpecWorker):
                     spec_stage_span("draft_extend"),
                 ):
                     self.draft_worker._draft_extend_for_decode(batch, batch_output)
+                    eagle_diagnostic.sync("draft_extend.complete")
 
             return batch_output
 

@@ -2452,6 +2452,17 @@ class AiterAttnBackend(AttentionBackend):
                     bs=bs,
                     seq_lens_sum=seq_lens_sum,
                 )
+            from sglang.srt.speculative import eagle_diagnostic
+
+            eagle_diagnostic.kv_gather(
+                self,
+                "verify.before_kv_gather",
+                req_pool_indices,
+                kv_lens,
+                kv_indptr,
+                kv_indices,
+                False,
+            )
             num_token_blocks = self._kv_index_blocks(bs)
             create_flashinfer_kv_indices_triton[(bs, num_token_blocks)](
                 self.req_to_token,
@@ -2462,6 +2473,15 @@ class AiterAttnBackend(AttentionBackend):
                 kv_indices,
                 self.req_to_token.stride(0),
                 TOKEN_BLOCK_PARALLEL=num_token_blocks > 1,
+            )
+            eagle_diagnostic.kv_gather(
+                self,
+                "verify.after_kv_gather",
+                req_pool_indices,
+                kv_lens,
+                kv_indptr,
+                kv_indices,
+                True,
             )
             kv_last_page_len = self.cuda_graph_kv_last_page_len[:bs]
 
@@ -2607,6 +2627,17 @@ class AiterAttnBackend(AttentionBackend):
             kv_indptr = self.kv_indptr[: bs + 1]
             kv_indptr[1 : bs + 1] = torch.cumsum(seq_lens, dim=0)
             kv_indices = self.cuda_graph_kv_indices
+            from sglang.srt.speculative import eagle_diagnostic
+
+            eagle_diagnostic.kv_gather(
+                self,
+                "draft_extend.before_kv_gather",
+                req_pool_indices,
+                seq_lens,
+                kv_indptr,
+                kv_indices,
+                False,
+            )
             num_token_blocks = self._kv_index_blocks(bs)
             create_flashinfer_kv_indices_triton[(bs, num_token_blocks)](
                 self.req_to_token,
@@ -2617,6 +2648,15 @@ class AiterAttnBackend(AttentionBackend):
                 kv_indices,
                 self.req_to_token.stride(0),
                 TOKEN_BLOCK_PARALLEL=num_token_blocks > 1,
+            )
+            eagle_diagnostic.kv_gather(
+                self,
+                "draft_extend.after_kv_gather",
+                req_pool_indices,
+                seq_lens,
+                kv_indptr,
+                kv_indices,
+                True,
             )
 
             kv_last_page_len = self.cuda_graph_kv_last_page_len[:bs]

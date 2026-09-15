@@ -4252,6 +4252,9 @@ class Scheduler(
         self.forward_ct += 1
         batch.forward_iter = self.forward_ct
         batch.launch_ts = time.monotonic()
+        from sglang.srt.speculative import eagle_diagnostic
+
+        eagle_diagnostic.begin(batch)
         batch.after_idle_gap = self._sched_idled
         self._sched_idled = False
 

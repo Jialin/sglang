@@ -21,7 +21,7 @@ if __name__ == "__main__":
     os.environ["SGLANG_TEST_MAX_RETRY"] = "0"
     print(
         "DIAGNOSTIC ONLY: ignoring stage arguments and running "
-        f"{test_path} with Python TreeCore and no retries. "
+        f"{test_path} with Python TreeCore, first-decode phase/index diagnostics, and no retries. "
         "This is not full-stage validation.",
         flush=True,
     )
