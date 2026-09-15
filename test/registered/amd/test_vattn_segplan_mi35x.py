@@ -196,8 +196,8 @@ class TestVattnSegPlan(CustomTestCase):
         o_fresh = call(
             seq_lens.clone(), cu_q.clone()
         ).float()  # new tensors -> freshly built plan
-        self.assertTrue(torch.equal(o_cached, o_cached2))
-        self.assertTrue(torch.equal(o_cached, o_fresh))
+        torch.testing.assert_close(o_cached, o_cached2, rtol=0, atol=0)
+        torch.testing.assert_close(o_cached, o_fresh, rtol=0, atol=0)
         r = ref(k, v, bt, q, cu_q, seq_lens, kd, vd, hq, hkv)
         self.assertLess((o_cached - r).abs().max().item(), 0.05)
 
