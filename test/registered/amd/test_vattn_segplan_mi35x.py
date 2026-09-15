@@ -180,8 +180,38 @@ class TestVattnSegPlan(CustomTestCase):
                 torch.cuda.synchronize()
             return sum(e.count for e in prof.key_averages() if "seg_plan" in e.key)
 
-        call()
+        initial_planned = call().float()
         torch.cuda.synchronize()
+        initial_fixed = V.mtp_verify_attn_fwd_asm(
+            q, k, v, bt, seq_lens, cu_q, kd, vd, scale, use_seg_plan=False
+        ).float()
+        torch.cuda.synchronize()
+        initial_ref = ref(k, v, bt, q, cu_q, seq_lens, kd, vd, hq, hkv)
+        initial_errors = {}
+        for label, output in (
+            ("planned", initial_planned),
+            ("fixed", initial_fixed),
+            ("reference", initial_ref),
+        ):
+            initial_errors[label] = (output - initial_ref).abs().max().item()
+            print(
+                "INITIAL_ASM_OUTPUT",
+                {
+                    "path": label,
+                    "numel": output.numel(),
+                    "finite": torch.isfinite(output).sum().item(),
+                    "nan": torch.isnan(output).sum().item(),
+                    "inf": torch.isinf(output).sum().item(),
+                    "max_reference_error": initial_errors[label],
+                },
+                flush=True,
+            )
+        self.assertTrue(torch.isfinite(initial_ref).all().item())
+        self.assertTrue(torch.isfinite(initial_planned).all().item())
+        self.assertTrue(torch.isfinite(initial_fixed).all().item())
+        self.assertLessEqual(
+            initial_errors["planned"], max(2 * initial_errors["fixed"], 0.02)
+        )
         V.reset_seg_plan_cache()
         self.assertEqual(plan_launches(lambda: [call() for _ in range(15)]), 1)
         V.reset_seg_plan_cache()
