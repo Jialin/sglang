@@ -4,13 +4,25 @@ Rust tree core for the Unified Radix Cache, covering Full attention, sliding win
 
 ## Usage
 
-Select the backend with:
+Rust is temporarily the default to exercise broader CI coverage on supported
+Linux installations with PyTorch 2.11 through 2.13 and CPU or CUDA devices.
+The centralized tree-core registry resolves session-aware caching, C128 or custom
+components, SWA with buffer-only HiCache host memory, unsupported platforms, and
+installations without the extension or its sources to Python. This policy also
+applies when Rust is explicitly selected. The buffer-mode SWA window-repair APIs
+introduced in #39283 still need a Rust port.
+Build, import, and runtime failures in supported configurations remain errors.
+
+Select a backend explicitly with:
 
 ```bash
 SGLANG_UNIFIED_RADIX_TREE_CORE_BACKEND=rust
+# Use the Python implementation instead:
+SGLANG_UNIFIED_RADIX_TREE_CORE_BACKEND=python
 ```
 
-SGLang wheels bundle the production extension. A source checkout falls back to
+Standard SGLang wheels bundle the production extension; some platform
+distributions omit it. A source checkout falls back to
 the shared fingerprinted Rust-extension cache; it never writes a shared object
 into the Python package. LibTorch and the Python headers come from the running
 interpreter's PyTorch install. PyTorch 2.11 through 2.13 are accepted explicitly,
