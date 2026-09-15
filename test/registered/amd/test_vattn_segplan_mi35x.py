@@ -8,8 +8,10 @@ Guards, on a gfx950 device:
     each trigger a rebuild, cached output bit-identical to uncached.
 """
 
+import ctypes
 import math
 import unittest
+from pathlib import Path
 
 import torch
 from torch.profiler import ProfilerActivity, profile
@@ -115,14 +117,74 @@ class TestVattnSegPlan(CustomTestCase):
         cls.V = V
         torch.set_default_device("cuda")
         original_launch = V._Kernel.launch
+        provenance_reported = False
 
-        def synchronized_launch(kernel, grid, block, args, stream):
-            torch.cuda.synchronize()
+        def report_provenance(kernel, grid, block, args, stream):
+            nonlocal provenance_reported
+            if not provenance_reported:
+                provenance_reported = True
+
+                class DlInfo(ctypes.Structure):
+                    _fields_ = [
+                        ("filename", ctypes.c_char_p),
+                        ("base", ctypes.c_void_p),
+                        ("symbol", ctypes.c_char_p),
+                        ("address", ctypes.c_void_p),
+                    ]
+
+                dladdr = ctypes.CDLL(None).dladdr
+                dladdr.argtypes = [ctypes.c_void_p, ctypes.POINTER(DlInfo)]
+                dladdr.restype = ctypes.c_int
+                print(
+                    "HIP_LIBRARY_PROVENANCE",
+                    {
+                        "torch": torch.__version__,
+                        "torch_hip": torch.version.hip,
+                        "stream": stream,
+                        "mapped_libraries": sorted(
+                            {
+                                line.split(maxsplit=5)[-1]
+                                for line in Path("/proc/self/maps")
+                                .read_text()
+                                .splitlines()
+                                if "libamdhip64" in line or "libhsa-runtime64" in line
+                            }
+                        ),
+                    },
+                    flush=True,
+                )
+                for label, library in (
+                    ("raw_ctypes", V._hip_lib()),
+                    ("torch_dependency", ctypes.CDLL(torch._C.__file__)),
+                ):
+                    try:
+                        launch = library.hipModuleLaunchKernel
+                        version_query = library.hipRuntimeGetVersion
+                    except AttributeError as exc:
+                        print("HIP_SYMBOL_PROVENANCE", label, str(exc), flush=True)
+                        continue
+                    info = DlInfo()
+                    address = ctypes.cast(launch, ctypes.c_void_p)
+                    resolved = dladdr(address, ctypes.byref(info))
+                    version_query.argtypes = [ctypes.POINTER(ctypes.c_int)]
+                    version_query.restype = ctypes.c_int
+                    version = ctypes.c_int()
+                    result = version_query(ctypes.byref(version))
+                    print(
+                        "HIP_SYMBOL_PROVENANCE",
+                        {
+                            "label": label,
+                            "launch_address": address.value,
+                            "library": info.filename.decode() if resolved else None,
+                            "runtime_version_result": result,
+                            "runtime_version": version.value,
+                        },
+                        flush=True,
+                    )
             original_launch(kernel, grid, block, args, stream)
-            torch.cuda.synchronize()
 
         cls.addClassCleanup(setattr, V._Kernel, "launch", original_launch)
-        V._Kernel.launch = synchronized_launch
+        V._Kernel.launch = report_provenance
 
     def _check_plan(self, lens, qlens, hkv, seq_lens, cu_q):
         V = self.V
