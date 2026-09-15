@@ -13,8 +13,9 @@ if __name__ == "__main__":
     test_path = (
         Path(__file__).resolve().parent
         / "registered"
+        / "amd"
         / "disaggregation"
-        / "test_disaggregation_nixl.py"
+        / "test_nixl_transfer_engine_e2e.py"
     )
     os.environ["UCX_NET_DEVICES"] = "all"
     os.environ["SGLANG_TEST_MAX_RETRY"] = "0"
