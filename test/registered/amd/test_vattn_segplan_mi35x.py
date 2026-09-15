@@ -114,6 +114,15 @@ class TestVattnSegPlan(CustomTestCase):
 
         cls.V = V
         torch.set_default_device("cuda")
+        original_launch = V._Kernel.launch
+
+        def synchronized_launch(kernel, grid, block, args, stream):
+            torch.cuda.synchronize()
+            original_launch(kernel, grid, block, args, stream)
+            torch.cuda.synchronize()
+
+        cls.addClassCleanup(setattr, V._Kernel, "launch", original_launch)
+        V._Kernel.launch = synchronized_launch
 
     def _check_plan(self, lens, qlens, hkv, seq_lens, cu_q):
         V = self.V
