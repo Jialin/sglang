@@ -53,6 +53,9 @@ class TestBasicSanity(
                 "--mem-fraction-static",
                 "0.7",
                 "--enable-metrics",
+                # Diagnostic only: capture stalls before the 120s client timeout.
+                "--soft-watchdog-timeout",
+                "30",
             ],
             env={"SGLANG_ENABLE_METRICS_DEVICE_TIMER": "1"},
         )
