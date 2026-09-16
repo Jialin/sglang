@@ -199,6 +199,13 @@ def register_memory_region_v2(model, transfer_engine):
     # Blocks in each segment have continuous physical addresses,
     # so they can be merged for memory registration.
     for segment in memory_snapshot:
+        if torch.version.hip:
+            # DIAGNOSTIC ONLY: HIP IPC requires the allocation's base pointer.
+            address = segment["address"]
+            size = segment["total_size"]
+            if any(address <= pointer < address + size for pointer in weight_addr_set):
+                weight_blocks_for_reg_mr.append((address, size))
+            continue
         current_weight_block = None
         blocks = segment.get("blocks", [])
         for block in blocks:
