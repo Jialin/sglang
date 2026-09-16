@@ -3,6 +3,7 @@
 Source base: PR 39627 port 87e4ae98ff3978aceb766e746fea6f8edd27df06.
 """
 
+import argparse
 import os
 import subprocess
 import sys
@@ -43,9 +44,12 @@ def run_backend(backend):
 
 
 def main():
-    if len(sys.argv) == 2:
-        assert sys.argv[1] in ("python", "rust")
-        run_backend(sys.argv[1])
+    parser = argparse.ArgumentParser()
+    parser.add_argument("backend", nargs="?", choices=("python", "rust"))
+    parser.add_argument("-f", action="store_true")
+    args = parser.parse_args()
+    if args.backend is not None:
+        run_backend(args.backend)
         return
     process_env = dict(os.environ)
     process_env["SGLANG_UNIFIED_RADIX_TREE_CORE_BACKEND"] = "rust"
