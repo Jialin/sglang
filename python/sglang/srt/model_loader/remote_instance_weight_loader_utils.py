@@ -4,12 +4,55 @@ import enum
 import importlib
 import importlib.util
 import logging
+import os
 import time
 from typing import List
 
 import requests
 
 logger = logging.getLogger(__name__)
+
+
+def diagnose_remote_weight(stage, model, metadata=None, include_values=False):
+    """DIAGNOSTIC ONLY: trace the first corrupted norm without changing copies."""
+    import torch
+
+    name = "model.layers.0.input_layernorm.weight"
+    weight = model.get_parameter(name)
+    pointer = weight.data_ptr()
+    record = {
+        "stage": stage,
+        "pid": os.getpid(),
+        "name": name,
+        "device": str(weight.device),
+        "pointer": pointer,
+        "storage_pointer": weight.untyped_storage().data_ptr(),
+        "storage_bytes": weight.untyped_storage().nbytes(),
+        "shape": list(weight.shape),
+        "dtype": str(weight.dtype),
+        "metadata": metadata,
+    }
+    for segment in torch.cuda.memory.memory_snapshot():
+        if segment["address"] <= pointer < segment["address"] + segment["total_size"]:
+            record["allocation"] = {
+                "address": segment["address"],
+                "size": segment["total_size"],
+                "offset": pointer - segment["address"],
+                "blocks": [
+                    {
+                        key: block[key]
+                        for key in ("address", "size", "requested_size", "state")
+                        if key in block
+                    }
+                    for block in segment["blocks"]
+                    if block["address"] <= pointer < block["address"] + block["size"]
+                ],
+            }
+            break
+    # Do not synchronize before the transfer: that could mask ordering bugs.
+    if include_values:
+        record["values"] = weight.detach().reshape(-1)[:10].cpu().float().tolist()
+    print("REMOTE_WEIGHT_DIAGNOSTIC", record, flush=True)
 
 
 class RemoteInstanceWeightLoaderBackend(str, enum.Enum):
@@ -191,4 +234,18 @@ def register_memory_region_v2(model, transfer_engine):
 
     end_tic = time.time()
     logger.debug(f"Register memory region v2 time: {(end_tic - start_tic):.4f}s")
+    diagnostic_name = "model.layers.0.input_layernorm.weight"
+    diagnostic_pointer = weight_mr_dict[diagnostic_name][0]
+    diagnose_remote_weight(
+        "registered",
+        model,
+        {
+            "published": weight_mr_dict[diagnostic_name],
+            "registered_regions": [
+                region
+                for region in weight_blocks_for_reg_mr
+                if region[0] <= diagnostic_pointer < region[0] + region[1]
+            ],
+        },
+    )
     return weight_mr_dict

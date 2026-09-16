@@ -45,6 +45,7 @@ from sglang.srt.constants import GIB_BYTES
 from sglang.srt.model_loader.post_load import stage_module_for_post_load
 from sglang.srt.model_loader.remote_instance_weight_loader_utils import (
     RemoteInstanceWeightLoaderBackend,
+    diagnose_remote_weight,
     get_remote_instance_transfer_engine_info_per_rank,
     register_memory_region,
 )
@@ -3479,6 +3480,14 @@ class RemoteInstanceModelLoader(BaseModelLoader):
             client_len_list.append(client_len)
 
         # load weights from source instance through TransferEngine
+        diagnostic_name = "model.layers.0.input_layernorm.weight"
+        diagnostic_metadata = {
+            "seed": seed_transfer_engine_weight_info[diagnostic_name],
+            "local_registered": self.remote_instance_transfer_engine_weight_info[
+                diagnostic_name
+            ],
+        }
+        diagnose_remote_weight("before_transfer", model, diagnostic_metadata)
         ret = transfer_engine.batch_transfer_sync_read(
             seed_transfer_engine_session_id,
             client_ptr_list,
@@ -3489,7 +3498,9 @@ class RemoteInstanceModelLoader(BaseModelLoader):
             logger.error(f"batch transfer failed, error: {ret}")
             return False
 
+        diagnose_remote_weight("after_transfer", model, diagnostic_metadata, True)
         _post_load_weights(model)
+        diagnose_remote_weight("after_post_load", model, diagnostic_metadata, True)
 
         return True
 

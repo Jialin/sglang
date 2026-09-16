@@ -7,6 +7,9 @@ from typing import Any, Callable, Optional
 import torch
 import torch.distributed as dist
 
+from sglang.srt.model_loader.remote_instance_weight_loader_utils import (
+    diagnose_remote_weight,
+)
 from sglang.srt.platforms import current_platform
 from sglang.srt.utils import init_custom_process_group
 from sglang.srt.utils.network import NetworkAddress
@@ -149,6 +152,8 @@ class WeightExporter:
         """
         # TODO: (chenyang) Add support for Qwen models.
         try:
+            if name == "model.layers.0.input_layernorm.weight":
+                diagnose_remote_weight("export", self.get_model(), include_values=True)
             return self.get_model().get_weights_by_name(
                 name, truncate_size, tp_size=self.tp_size
             )
