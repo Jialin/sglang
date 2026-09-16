@@ -97,7 +97,8 @@ def _declared_kernarg_size(source_file):
 def _hip_lib():
     global _hip
     if _hip is None:
-        _hip = ctypes.CDLL("libamdhip64.so")
+        # DIAGNOSTIC ONLY: use the HIP dependency already loaded by Torch.
+        _hip = ctypes.CDLL(torch._C.__file__)
         _hip.hipModuleLoad.restype = ctypes.c_int
         _hip.hipModuleLoad.argtypes = [ctypes.c_void_p, ctypes.c_char_p]
         _hip.hipModuleGetFunction.restype = ctypes.c_int
